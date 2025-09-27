@@ -384,6 +384,7 @@ export function MapMenuDock({
                                                 <AIChat
                                                         isOpen={isAIChatOpen}
                                                         onClose={() => setIsAIChatOpen(false)}
+                                                        onSearchResult={onSearchResult}
                                                 />
                                         </motion.div>
                                 )}
