@@ -13,121 +13,122 @@ import type { LngLatBoundsLike } from "maplibre-gl";
 import { Loader2 } from "lucide-react";
 
 interface MapDisplayProps {
-  initialCenter?: [number, number];
-  initialZoom?: number;
-  height?: string;
-  width?: string;
+        initialCenter?: [number, number];
+        initialZoom?: number;
+        height?: string;
+        width?: string;
 }
 
 export function MapDisplay({
-  initialCenter = [0, 0],
-  initialZoom = 3,
-  height = "100%",
-  width = "100%",
+        initialCenter = [0, 0],
+        initialZoom = 3,
+        height = "100%",
+        width = "100%",
 }: MapDisplayProps) {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+        const mapContainerRef = useRef<HTMLDivElement>(null);
+        const [isInitializing, setIsInitializing] = useState(true);
 
-  // --- Custom Hooks ---
-  const { mapRef, isMapLoaded } = useMapInitialization({
-    mapContainerRef,
-    initialCenter,
-    initialZoom,
-  });
+        // --- Custom Hooks ---
+        const { mapRef, isMapLoaded, switchBaseLayer } = useMapInitialization({
+                mapContainerRef,
+                initialCenter,
+                initialZoom,
+        });
 
-  // Get the drawn feature from the store
-  const drawnFeature = useDrawStore((state) => state.drawnFeature);
+        // Get the drawn feature from the store
+        const drawnFeature = useDrawStore((state) => state.drawnFeature);
 
-  // Initialize analysis hook (handles state and analysis logic)
-  // For the initial clearAnalysis function, selectedFeature can be null
-  const { clearAnalysis } = useGeospatialAnalysis({
-    mapRef,
-    selectedFeature: null,
-    isMapLoaded,
-  });
+        // Initialize analysis hook (handles state and analysis logic)
+        // For the initial clearAnalysis function, selectedFeature can be null
+        const { clearAnalysis } = useGeospatialAnalysis({
+                mapRef,
+                selectedFeature: null,
+                isMapLoaded,
+        });
 
-  // Initialize draw hook (handles drawing and selection state)
-  const { selectedGeometryType } = useMapDraw({
-    mapRef,
-    isMapLoaded,
-    onAnalysisClearNeeded: clearAnalysis,
-  });
+        // Initialize draw hook (handles drawing and selection state)
+        const { selectedGeometryType } = useMapDraw({
+                mapRef,
+                isMapLoaded,
+                onAnalysisClearNeeded: clearAnalysis,
+        });
 
-  // Re-run analysis hook when drawnFeature from the store changes
-  const {
-    analysisResult: currentAnalysisResult,
-    handleBufferClick: currentHandleBufferClick,
-    handleDistanceClick: currentHandleDistanceClick,
-    handleAreaClick: currentHandleAreaClick,
-    handleCentroidClick: currentHandleCentroidClick,
-    clearAnalysis: currentClearAnalysis,
-  } = useGeospatialAnalysis({
-    mapRef,
-    selectedFeature: drawnFeature,
-    isMapLoaded,
-  });
+        // Re-run analysis hook when drawnFeature from the store changes
+        const {
+                analysisResult: currentAnalysisResult,
+                handleBufferClick: currentHandleBufferClick,
+                handleDistanceClick: currentHandleDistanceClick,
+                handleAreaClick: currentHandleAreaClick,
+                handleCentroidClick: currentHandleCentroidClick,
+                clearAnalysis: currentClearAnalysis,
+        } = useGeospatialAnalysis({
+                mapRef,
+                selectedFeature: drawnFeature,
+                isMapLoaded,
+        });
 
-  // Callback for geocoding results
-  const handleGeocodingResult = (bounds: LngLatBoundsLike) => {
-    if (mapRef.current) {
-      mapRef.current.fitBounds(bounds, {
-        padding: 100,
-        maxZoom: 18,
-      });
-    }
-  };
+        // Callback for geocoding results
+        const handleGeocodingResult = (bounds: LngLatBoundsLike) => {
+                if (mapRef.current) {
+                        mapRef.current.fitBounds(bounds, {
+                                padding: 100,
+                                maxZoom: 18,
+                        });
+                }
+        };
 
-  // Hide loading indicator after map is loaded
-  useEffect(() => {
-    if (isMapLoaded) {
-      const timer = setTimeout(() => {
-        setIsInitializing(false);
-      }, 500); // Add a slight delay to ensure smooth transition
-      return () => clearTimeout(timer);
-    }
-  }, [isMapLoaded]);
+        // Hide loading indicator after map is loaded
+        useEffect(() => {
+                if (isMapLoaded) {
+                        const timer = setTimeout(() => {
+                                setIsInitializing(false);
+                        }, 500); // Add a slight delay to ensure smooth transition
+                        return () => clearTimeout(timer);
+                }
+        }, [isMapLoaded]);
 
-  return (
-    <div className="relative overflow-hidden" style={{ width, height }}>
-      {/* Map container with rounded corners and shadow */}
-      <div className="absolute inset-0 bg-gray-100 dark:bg-gray-900">
-        <div
-          ref={mapContainerRef}
-          style={{ width: "100%", height: "100%" }}
-          className="rounded-lg shadow-md overflow-hidden relative"
-        />
-      </div>
+        return (
+                <div className="relative overflow-hidden" style={{ width, height }}>
+                        {/* Map container with rounded corners and shadow */}
+                        <div className="absolute inset-0 bg-gray-100 dark:bg-gray-900">
+                                <div
+                                        ref={mapContainerRef}
+                                        style={{ width: "100%", height: "100%" }}
+                                        className="rounded-lg shadow-md overflow-hidden relative"
+                                />
+                        </div>
 
-      {/* Loading indicator */}
-      {isInitializing && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-30 rounded-lg">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-10 w-10 text-primary animate-spin" />
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-              Initializing Map
-            </p>
-          </div>
-        </div>
-      )}
+                        {/* Loading indicator */}
+                        {isInitializing && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-30 rounded-lg">
+                                        <div className="flex flex-col items-center gap-3">
+                                                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                        Initializing Map
+                                                </p>
+                                        </div>
+                                </div>
+                        )}
 
-      {/* Sidebar for analysis results */}
-      <AnalysisResult
-        isVisible={currentAnalysisResult.isVisible}
-        title={currentAnalysisResult.title}
-        value={currentAnalysisResult.value}
-        unit={currentAnalysisResult.unit}
-        onClose={currentClearAnalysis}
-      />
+                        {/* Sidebar for analysis results */}
+                        <AnalysisResult
+                                isVisible={currentAnalysisResult.isVisible}
+                                title={currentAnalysisResult.title}
+                                value={currentAnalysisResult.value}
+                                unit={currentAnalysisResult.unit}
+                                onClose={currentClearAnalysis}
+                        />
 
-      {/* Toolbar*/}
-      <MapMenuDock
-        selectedGeometryType={selectedGeometryType}
-        onBufferClick={currentHandleBufferClick}
-        onDistanceClick={currentHandleDistanceClick}
-        onAreaClick={currentHandleAreaClick}
-        onCentroidClick={currentHandleCentroidClick}
-        onSearchResult={handleGeocodingResult}
-      />
-    </div>
-  );
+                        {/* Toolbar*/}
+                        <MapMenuDock
+                                selectedGeometryType={selectedGeometryType}
+                                onBufferClick={currentHandleBufferClick}
+                                onDistanceClick={currentHandleDistanceClick}
+                                onAreaClick={currentHandleAreaClick}
+                                onCentroidClick={currentHandleCentroidClick}
+                                onSearchResult={handleGeocodingResult}
+                                onBaseLayerSwitch={switchBaseLayer}
+                        />
+                </div>
+        );
 }

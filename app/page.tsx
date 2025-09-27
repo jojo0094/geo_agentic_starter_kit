@@ -8,15 +8,16 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
           <h1 className="text-lg font-medium bg-gradient-to-r from-primary to-blue-500 dark:from-blue-400 dark:to-primary bg-clip-text text-transparent">
-            GeoAgentic
+            WNetBuilder
           </h1>
         </div>
       </header>
 
       <div className="flex-1 relative">
         <MapDisplay
-          initialCenter={[-98, 40]}
-          initialZoom={3}
+          //#to nz ceter lat lon
+          initialCenter={[174.885971, -40.900557]}
+          initialZoom={5}
           height="100%"
           width="100%"
         />
